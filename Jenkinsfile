@@ -7,6 +7,8 @@ pipeline {
         TAG = 'v1'
         CONTAINER_NAME = "my-api-container"
     }
+
+    stages {
         stage('Build Docker Image') {
             steps {
                 script {
