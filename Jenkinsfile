@@ -7,14 +7,6 @@ pipeline {
         TAG = 'v1'
         CONTAINER_NAME = "my-api-container"
     }
-
-    stages {
-        stage('Clone Repository') {
-            steps {
-                git REPO_URL
-            }
-        }
-
         stage('Build Docker Image') {
             steps {
                 script {
