@@ -12,7 +12,10 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    sh "docker build -t ${DOCKER_IMAGE}:${TAG} ."
+                    sh '''
+                    unset DOCKER_HOST
+                    docker build -t betelhemhailu/my-api:v1 .
+                    '''
                 }
             }
         }
