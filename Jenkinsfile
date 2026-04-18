@@ -14,6 +14,8 @@ pipeline {
                 script {
                     sh '''
                     unset DOCKER_HOST
+                    export DOCKER_HOST=unix:///var/run/docker.sock
+                    docker version
                     docker build -t betelhemhailu/my-api:v1 .
                     '''
                 }
