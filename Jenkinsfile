@@ -2,61 +2,59 @@ pipeline {
     agent any
 
     environment {
-        REPO_URL = 'https://github.com/Betelhem-hailu/health-check.git'
         DOCKER_IMAGE = 'betelhemhailu/my-api'
         TAG = 'v1'
-        CONTAINER_NAME = "my-api-container"
+        CONTAINER_NAME = 'my-api-container'
     }
 
     stages {
+
         stage('Build Docker Image') {
             steps {
-                script {
-                    sh '''
-                    unset DOCKER_HOST
-                    export DOCKER_HOST=unix:///var/run/docker.sock
-                    docker version
-                    docker build -t betelhemhailu/my-api:v1 .
-                    '''
-                }
+                bat """
+                docker version
+                docker build -t %DOCKER_IMAGE%:%TAG% .
+                """
             }
         }
 
         stage('Run Container (Simulated Deploy)') {
             steps {
-                script {
-                    sh """
-                    docker rm -f ${CONTAINER_NAME} || true
-                    docker run -d -p 5000:5000 --name ${CONTAINER_NAME} ${DOCKER_IMAGE}:${TAG}
-                    """
-                }
+                bat """
+                docker rm -f %CONTAINER_NAME% 2>NUL
+                docker run -d -p 5000:5000 --name %CONTAINER_NAME% %DOCKER_IMAGE%:%TAG%
+                """
             }
         }
+
         stage('Health Check') {
             steps {
-                script {
-                    sh """
-                    sleep 5
-                    curl -f http://localhost:5000/health
-                    """
-                }
+                bat """
+                timeout /t 5 /nobreak
+                curl http://localhost:5000/health
+                """
             }
         }
     }
 
     post {
+
         success {
             echo 'App is running successfully ✅'
         }
 
         failure {
             echo 'Health check failed ❌'
-            sh "docker logs ${CONTAINER_NAME} || true"
+            bat """
+            docker logs %CONTAINER_NAME%
+            """
         }
 
         always {
             echo 'Cleaning up...'
-            sh "docker rm -f ${CONTAINER_NAME} || true"
+            bat """
+            docker rm -f %CONTAINER_NAME% 2>NUL
+            """
         }
     }
 }
